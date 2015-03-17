@@ -14,7 +14,7 @@ import (
 
 // AuthResource creates the login and logout routes when bound
 type AuthResource struct {
-	router *gin.RouterGroup
+	Router *gin.RouterGroup
 }
 
 // Bind creates the default user if it doesn't exist and adds the
@@ -34,8 +34,8 @@ func (auth AuthResource) Bind(db KeyValueDatabase) error {
 	}
 
 	handler := AuthHandler{users}
-	auth.router.POST("/login", handler.Login)
-	auth.router.POST("/logout", handler.Logout)
+	auth.Router.POST("/login", handler.Login)
+	auth.Router.POST("/logout", handler.Logout)
 	return nil
 }
 

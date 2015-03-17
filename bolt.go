@@ -9,12 +9,12 @@ import (
 
 // BoltDatabaseFactory creates Database objects for an underlying BoltDB instance.
 type BoltDatabaseFactory struct {
-	file string
+	File string
 }
 
 // Connect returns the KeyValueDatabase instance for talking to a BoltDB file.
 func (b BoltDatabaseFactory) Connect() (KeyValueDatabase, error) {
-	return NewLeaf(b.file)
+	return NewLeaf(b.File)
 }
 
 // NewLeaf creates a connection to a BoltDB file

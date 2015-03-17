@@ -20,6 +20,10 @@ type HTTPResource interface {
 	Bind(KeyValueDatabase) error
 }
 
+func NewAPI(router *gin.Engine) API {
+	return API{router, nil}
+}
+
 // API encapsulates all the API functionality for adding all the resources
 type API struct {
 	router   *gin.Engine
