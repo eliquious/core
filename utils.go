@@ -67,7 +67,7 @@ func UUID4() (string, error) {
 func createDefaultUser(users Keyspace) error {
 
 	// check if default user exists
-	exists, err := users.Contains(DEFAULT_USER)
+	exists, err := users.Contains("default.user@example.com")
 	if err != nil {
 
 		// error accessing database
@@ -81,7 +81,7 @@ func createDefaultUser(users Keyspace) error {
 
 	// create default user
 	user := BaseUser{}
-	user.Username = DEFAULT_USER
+	user.Username = "default.user@example.com"
 	user.PrimaryEmail = "default.user@example.com"
 
 	// password
