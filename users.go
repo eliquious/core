@@ -1,9 +1,5 @@
 package core
 
-const (
-	DEFAULT_USER = "default.user"
-)
-
 type BaseUser struct {
 	Username       string
 	RequestId      int

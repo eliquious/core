@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 	// "strings"
 
@@ -131,11 +132,32 @@ func getSecureCookie(user BaseUser, users Keyspace) (*securecookie.SecureCookie,
 
 // Login handles requests to /login
 func (a *AuthHandler) Login(ctx *gin.Context) {
-	ctx.Request.ParseForm()
 
-	// get form values
-	username := ctx.Request.Form.Get("username")
-	password := ctx.Request.Form.Get("password")
+	authHeader := ctx.Request.Header.Get("Authorization")
+	if authHeader == "" {
+		log.Printf("Missing Basic Authentication Header\n")
+		ctx.String(http.StatusBadRequest, "Invalid email or password")
+		return
+	}
+
+	auth := strings.SplitN(authHeader, " ", 2)
+
+	if len(auth) != 2 || auth[0] != "Basic" {
+		log.Printf("Invalid Basic Authentication Header\n")
+		ctx.String(http.StatusBadRequest, "Invalid email or password")
+		return
+	}
+
+	payload, _ := base64.StdEncoding.DecodeString(auth[1])
+	pair := strings.SplitN(string(payload), ":", 2)
+
+	if len(pair) != 2 {
+		log.Printf("Invalid Basic Authentication Header\n")
+		ctx.String(http.StatusUnauthorized, "Invalid email or password")
+		return
+	}
+
+	var username, password = pair[0], pair[1]
 
 	// authenticate user
 	if username != "" && password != "" {
@@ -148,13 +170,13 @@ func (a *AuthHandler) Login(ctx *gin.Context) {
 			// error reading user object
 
 			log.Printf("could not get user from database: (%s) %v\n", username, err)
-			ctx.String(500, "Error retreiving user")
+			ctx.String(http.StatusUnauthorized, "Invalid email or password")
 			return
 		} else if bytes == nil {
 
 			// could not find username
 			log.Printf("could not find user: (%s) %v\n", username, err)
-			ctx.String(401, "Invalid username or password")
+			ctx.String(http.StatusUnauthorized, "Invalid email or password")
 			return
 		}
 
@@ -164,7 +186,7 @@ func (a *AuthHandler) Login(ctx *gin.Context) {
 		if err != nil {
 
 			log.Printf("could not unmarshal user: (%s) %v\n", username, err)
-			ctx.String(500, "Error retreiving user")
+			ctx.String(http.StatusUnauthorized, "Invalid email or password")
 			return
 		}
 
@@ -173,7 +195,7 @@ func (a *AuthHandler) Login(ctx *gin.Context) {
 		if !success {
 
 			log.Printf("failed login: (%s)\n", username)
-			ctx.String(401, "Invalid username or password")
+			ctx.String(http.StatusUnauthorized, "Invalid email or password")
 			return
 		}
 
@@ -196,7 +218,7 @@ func (a *AuthHandler) Login(ctx *gin.Context) {
 		// failed login due to invalid form
 
 		log.Printf("Invalid login form: (%s : %s)\n", username, password)
-		ctx.String(401, "Invalid username or password")
+		ctx.String(http.StatusUnauthorized, "Invalid email or password")
 	}
 }
 
